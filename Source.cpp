@@ -1,82 +1,104 @@
-#include <iostream>
-#include <iomanip>
-#include <time.h>
+#include <iostream> 
+#include <iomanip> 
+#include <time.h> 
 
 using namespace std;
 
-void Create(int* a, const int size, const int Low, const int High)
+void Create(int* a, const int size, const int Low, const int High, int i)
 {
-    for (int i = 0; i < size; i++)
-        a[i] = Low + rand() % (High - Low + 1);
+    a[i] = Low + rand() % (High - Low + 1);
+    if (i < size - 1)
+        Create(a, size, Low, High, i + 1);
 }
-void Print(int* a, const int size)
+void Print(int* a, const int size, int i)
 {
-    for (int i = 0; i < size; i++)
-        cout << setw(4) << a[i];
-    cout << endl;
+    cout << setw(4) << a[i];
+    if (i < size - 1)
+        Print(a, size, i + 1);
+    else
+        cout << endl;
 }
-int Pos(int* a, int n)
+int Pos(int* a, int n, int i)
 {
-    int k = 0;
-    for (int i = 0; i < n; i++)
+    if (i < n)
+    {
         if (a[i] > 0)
-            k++;
-    return (k);
-}
-int Sum(int* a, const int n)
 
+            return 1 + Pos(a, n, i + 1);
+        else
+            return Pos(a, n, i + 1);
+    }
+    else
+        return 0;
+}
+
+
+void FindZero(int* a, int n, int& index, int i) // {4, 5, 0, -3, 10, 18, 0, 2}
 {
-    int s = 0;
-    for (int i = 0; i < n; i++)
+    if (i < n)
     {
-        if (abs(a[i]) == 0)
-        {
-            for (a[i]+1 ; i < n; i++) 
-                s += abs(a[i]);
-            break;
+        if (a[i] == 0) {
+            index = i;
         }
+        FindZero(a, n, index, i + 1);
     }
-    return s;
+
 }
 
-void Sort(int* a, const int size )
+int Sum(int* a, const int size, int i)
 {
-    for (int i = 1; i < size; i++)
+    if (i < size)
     {
-        
-        for (int j = 0; j < size - i; j++)
-            if (a[j]>a[j+1])
-            {
-                int tmp = a[j];
-                a[j] = a[j + 1];
-                a[j + 1] = tmp;
-               
-            }
-        
+        return a[i] + Sum(a, size, i + 1);
     }
+    else return 0;
 }
 
+void Sort(int* a, const int size, int i) 
+{ 
+    int min = a[i];
+    int imin = i;
+    for (int j = i + 1; j < size; j++)
+        if (min > a[j])
+        {
+            min = a[j];
+            imin = j;
+        }
+    a[imin] = a[i];
+    a[i] = min;
 
-
+    if (i < size - 2)
+        Sort(a, size, i + 1);
+}
 int main()
 {
-    srand((unsigned)time(NULL)); 
+    srand((unsigned)time(NULL));
     int n;
-    
+
     cout << "n= "; cin >> n;
-        
+
     int* a = new int[n];
     int Low = -10;
     int High = 10;
 
-    Create(a, n, Low, High);
-    Print(a, n);
-    Sort(a, n);
-    Print(a, n);
-    Pos(a, n);
-    Sum(a, n);
-    cout << "k+= " << Pos(a, n) << endl;
-    cout << "Sum = " << Sum(a, n) << endl;
+    Create(a, n, Low, High, 0);
+    Print(a, n, 0);
+
+    int S = 0;
+    int index = -1;
+    FindZero(a, n, index, 0);
+    if (index != -1)
+    {
+        cout << "Sum = " << Sum(a, n, index) << endl;
+    }
+    else
+    {
+        cout << "There isn't zero" << endl;
+    }
+
+    Sort(a, n, 0);
+    Print(a, n, 0);
+    cout << "k+= " << Pos(a, n, 0) << endl;
     delete[]a;
     a = nullptr;
     return 0;
